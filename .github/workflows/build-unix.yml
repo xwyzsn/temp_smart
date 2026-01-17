@@ -1,0 +1,43 @@
+name: Build Linux & macOS
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # 这里定义了两个系统，GitHub 会自动裂变成两个并行的任务跑
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11" # 依然建议保持 3.11 的稳定性
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          # 安装本地包
+          pip install "./choice"
+          # 安装项目本身依赖
+          pip install .
+
+      - name: Build with PyInstaller
+        # 注意：Linux/Mac 下 --add-data 的分隔符是冒号 : 而不是 Windows 的分号 ;
+        # 我们显式指定 --name server，这样生成的文件名就是 server (没有 .exe 后缀)
+        run: |
+          pyinstaller -F --add-data "static:static" --name "server" server.py
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          # 这里的名字会自动变成 server-ubuntu-latest 和 server-macos-latest
+          name: server-${{ matrix.os }}
+          path: dist/server
