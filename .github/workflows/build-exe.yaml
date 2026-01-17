@@ -30,7 +30,7 @@ jobs:
 
           # 2. 安装当前目录 pyproject.toml 中的依赖
           # pip install . 会自动读取 pyproject.toml 并安装依赖
-          pip install .
+          pip install -r requirements.txt
 
       - name: Build with PyInstaller
         # Windows 环境下，--add-data 分隔符必须是分号 ;

@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name="smart_server",
@@ -17,6 +17,7 @@ setup(
         "httpx",
         "pydantic",
         "matplotlib",
+        "pandas",
     ],
     packages=find_packages(),
     include_package_data=True,

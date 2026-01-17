@@ -27,7 +27,7 @@ jobs:
           # 安装本地包
           pip install "./choice"
           # 安装项目本身依赖
-          pip install .
+          pip install -r requirements.txt
 
       - name: Build with PyInstaller
         # 注意：Linux/Mac 下 --add-data 的分隔符是冒号 : 而不是 Windows 的分号 ;
