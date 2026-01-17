@@ -1,0 +1,45 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          # 强烈建议使用 3.11，因为 numpy/matplotlib 可能还没有适配 3.13 的 Windows 二进制包
+          # 如果非要用 3.13，可能会卡在 "Building wheel for numpy" 这一步很久然后报错
+          python-version: "3.11"
+
+      - name: Install dependencies
+        # 这一步是关键修改
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+
+          # 1. 安装 choice 目录下的本地包
+          # -e 表示以可编辑模式安装（或者去掉 -e 直接安装），直接指向目录路径即可
+          pip install "./choice"
+
+          # 2. 安装当前目录 pyproject.toml 中的依赖
+          # pip install . 会自动读取 pyproject.toml 并安装依赖
+          pip install .
+
+      - name: Build with PyInstaller
+        # Windows 环境下，--add-data 分隔符必须是分号 ;
+        # 确保 static 文件夹确实在仓库根目录下
+        run: |
+          pyinstaller -F --add-data "static;static" server.py
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: MyServer-Windows
+          path: dist/server.exe
